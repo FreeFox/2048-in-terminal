@@ -3,3 +3,6 @@
 *.sw[po]
 tags
 TODO
+*.cbp
+*.depend
+*.layout

@@ -36,7 +36,7 @@ static const NCURSES_ATTR_T  tile_attr[] = {
 	COLOR_PAIR(3) | A_BOLD, /* 131072 */
 };
 
-static const struct timespec tick_time     = {.tv_sec = 0, .tv_nsec = 30000000};
+static const struct timespec tick_time     = {.tv_sec = 0, .tv_nsec = 20000000};
 static const struct timespec end_move_time = {.tv_sec = 0, .tv_nsec = 6000000};
 
 static WINDOW *board_win;
@@ -46,8 +46,11 @@ static WINDOW *stats_win;
 int init_win()
 {
 
-	static const int bwidth  = TILE_WIDTH  * BOARD_SIZE + 2;
-	static const int bheight = TILE_HEIGHT * BOARD_SIZE + 2;
+    //board window size
+	static const int bwidth  = TILE_WIDTH  * BOARD_SIZE + 2; //all tiles width + 2 places for boards
+	static const int bheight = TILE_HEIGHT * BOARD_SIZE + 2; //all tiles height + 2 places for boards
+
+	//statistics window size
 	static const int swidth  = 13;
 	static const int sheight = bheight - 2;
 
@@ -63,28 +66,32 @@ int init_win()
 	refresh();
 
 	int scr_width, scr_height;
-	getmaxyx(stdscr, scr_height, scr_width);
+	getmaxyx(stdscr, scr_height, scr_width); //get screen dimensions
 
-	int btop = (scr_height - bheight) / 2;
-	int stop = btop + 1;
-
+	int btop = (scr_height - bheight) / 2; //distance between board top and screen top
+	int stop = btop + 1; // statistic window is smaller than board one, so distance should be increased
 	int bleft;
-	if (bwidth + swidth < scr_width)
+
+	if (bwidth + swidth < scr_width) {
 		bleft = (scr_width - bwidth - swidth) / 2;
-	else
+	} else {
 		bleft = 0;
-	int sleft = bleft + bwidth + 1;
+	}
 
+	int sleft = bleft + bwidth + 1; // 1 is the space between statistics window and board
 
-	if (bheight > scr_height || bwidth > scr_width)
+	if (bheight > scr_height || bwidth > scr_width) {
 		return WIN_TOO_SMALL;
+	}
 
 	board_win = newwin(bheight, bwidth, btop, bleft);
 	stats_win = newwin(sheight, swidth, stop, sleft);
+
 	if (!board_win || !stats_win) {
 		endwin();
 		exit(1);
 	}
+
 	wattrset(board_win, COLOR_PAIR(1));
 	wborder(board_win, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE,
 	        ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
@@ -188,12 +195,16 @@ static void draw_stats(const Stats *stats)
 	mvwprintw(stats_win, 5, 1, "%8d", stats->max_score);
 	mvwprintw(stats_win, 15, 2, "estart");
 	mvwprintw(stats_win, 16, 2, "uit");
+	mvwprintw(stats_win, 17, 2, "op scores");
 
 	wattron(stats_win, COLOR_PAIR(3));
 	mvwaddch(stats_win, 15, 1, 'R');
 
 	wattron(stats_win, COLOR_PAIR(7));
 	mvwaddch(stats_win, 16, 1, 'Q');
+
+	wattron(stats_win, COLOR_PAIR(4));
+	mvwaddch(stats_win, 17, 1, 'T');
 }
 
 
@@ -255,10 +266,10 @@ void draw_slide(const Board *board, const Board *moves, Dir dir)
 			tile.val = board->tiles[y][x];
 
 			switch (dir) {
-			case UP:    tile.mx = 0; tile.my = -1 * step; break;
-			case DOWN:  tile.mx = 0; tile.my =  1 * step; break;
-			case LEFT:  tile.mx = -2 * step; tile.my = 0; break;
-			case RIGHT: tile.mx =  2 * step; tile.my = 0; break;
+                case UP:    tile.mx = 0; tile.my = -1 * step; break;
+                case DOWN:  tile.mx = 0; tile.my =  1 * step; break;
+                case LEFT:  tile.mx = -2 * step; tile.my = 0; break;
+                case RIGHT: tile.mx =  2 * step; tile.my = 0; break;
 			}
 			tiles[tiles_n++] = tile;
 		}
@@ -266,11 +277,11 @@ void draw_slide(const Board *board, const Board *moves, Dir dir)
 
 	int (*sort)(const void*, const void*);
 	switch (dir) {
-	case LEFT:  sort = sort_left;  break;
-	case RIGHT: sort = sort_right; break;
-	case UP:    sort = sort_up;    break;
-	case DOWN:  sort = sort_down;  break;
-	default :   exit(1); break;
+        case LEFT:  sort = sort_left;  break;
+        case RIGHT: sort = sort_right; break;
+        case UP:    sort = sort_up;    break;
+        case DOWN:  sort = sort_down;  break;
+        default :   exit(1); break;
 	}
 	/* sort sliding tiles according to direction */
 	qsort(tiles, tiles_n, sizeof(Tile), sort);
@@ -308,4 +319,9 @@ static int sort_up(const void *l, const void *r)
 static int sort_down(const void *l, const void *r)
 {
 	return ((Tile *)r)->y - ((Tile *)l)->y;
+}
+
+void toggle_top_scores()
+{
+    connect_to_database();
 }

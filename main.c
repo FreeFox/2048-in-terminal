@@ -78,31 +78,36 @@ int main(void)
 			goto next;
 
 		switch(ch) {
-		case KEY_UP:    dir = UP;    break;
-		case KEY_DOWN:  dir = DOWN;  break;
-		case KEY_LEFT:  dir = LEFT;  break;
-		case KEY_RIGHT: dir = RIGHT; break;
+            case KEY_UP:    dir = UP;    break;
+            case KEY_DOWN:  dir = DOWN;  break;
+            case KEY_LEFT:  dir = LEFT;  break;
+            case KEY_RIGHT: dir = RIGHT; break;
 
-		/* restart */
-		case 'r': case 'R':
-			stats.score = 0;
-			stats.game_over = false;
-			board_start(&board);
-			draw(&board, &stats);
-			goto next;
+            /* restart */
+            case 'r': case 'R':
+                stats.score = 0;
+                stats.game_over = false;
+                board_start(&board);
+                draw(&board, &stats);
+                goto next;
 
-		/* terminal resize */
-		case KEY_RESIZE:
-			if (init_win() == WIN_TOO_SMALL) {
-				terminal_too_small = true;
-				print_too_small();
-			} else {
-				terminal_too_small = false;
-				draw(&board, &stats);
-			}
-			goto next;
-		default:
-			goto next;
+            /* top scores */
+            case 't': case 'T':
+                toggle_top_scores();
+                goto next;
+
+            /* terminal resize */
+            case KEY_RESIZE:
+                if (init_win() == WIN_TOO_SMALL) {
+                    terminal_too_small = true;
+                    print_too_small();
+                } else {
+                    terminal_too_small = false;
+                    draw(&board, &stats);
+                }
+                goto next;
+            default:
+                goto next;
 		}
 
 		if (stats.game_over)
