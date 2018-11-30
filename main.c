@@ -13,7 +13,6 @@ static sigset_t all_signals;
 static Board board;
 static Stats stats = {.auto_save = false, .game_over = false};
 
-
 static void sig_handler(int __attribute__((unused))sig_no)
 {
 	sigprocmask(SIG_BLOCK, &all_signals, NULL);
@@ -96,6 +95,12 @@ int main(void)
                 toggle_top_scores();
                 goto next;
 
+            /* cancel the last move */
+            case 'b': case 'B':
+                restore_state(&board, &stats);
+                draw(&board, &stats);
+                goto next;
+
             /* terminal resize */
             case KEY_RESIZE:
                 if (init_win() == WIN_TOO_SMALL) {
@@ -112,6 +117,8 @@ int main(void)
 
 		if (stats.game_over)
 			goto next;
+
+        save_state(&board, &stats);
 
 		stats.points = board_slide(&board, &new_board, &moves, dir);
 

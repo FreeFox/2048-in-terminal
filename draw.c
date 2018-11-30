@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include "draw.h"
+#include "topscore.h"
 
 /* sliding tile */
 typedef struct tile {
@@ -196,6 +197,7 @@ static void draw_stats(const Stats *stats)
 	mvwprintw(stats_win, 15, 2, "estart");
 	mvwprintw(stats_win, 16, 2, "uit");
 	mvwprintw(stats_win, 17, 2, "op scores");
+	mvwprintw(stats_win, 18, 2, "ack");
 
 	wattron(stats_win, COLOR_PAIR(3));
 	mvwaddch(stats_win, 15, 1, 'R');
@@ -205,6 +207,9 @@ static void draw_stats(const Stats *stats)
 
 	wattron(stats_win, COLOR_PAIR(4));
 	mvwaddch(stats_win, 17, 1, 'T');
+
+	wattron(stats_win, COLOR_PAIR(5));
+	mvwaddch(stats_win, 18, 1, 'B');
 }
 
 

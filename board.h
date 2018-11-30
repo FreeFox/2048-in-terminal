@@ -18,4 +18,9 @@ int  board_slide(const Board *board, Board *new_board, Board *moves,  Dir dir);
 
 bool board_can_slide(const Board *board);
 
+void save_state(Board*, Stats*);
+void restore_state(Board*, Stats*);
+void copy_board(Board*, Board*);
+void copy_stats(Stats*, Stats*);
+
 #endif
