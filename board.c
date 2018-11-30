@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "board.h"
 
+static Board prevboard;
+static Stats prevstats;
+
 static const int tile_num[] = {0,
 	2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048,
 	4096, 8192, 16384, 32768, 65536, 131072
@@ -86,7 +89,7 @@ int board_slide(const Board *board, Board *new_board, Board *moves,  Dir dir)
 		break;
 	case LEFT: break;
 	}
-	
+
 	return points;
 }
 bool board_can_slide(const Board *board)
@@ -189,4 +192,31 @@ static int next_same(int row[BOARD_SIZE], int val, int start)
 			return -1;
 	}
 	return -1;
+}
+
+void save_state(Board *board, Stats *stats){
+    copy_board(board, &prevboard);
+    copy_stats(stats, &prevstats);
+}
+
+void restore_state(Board *active_board, Stats *stats) {
+    copy_board(&prevboard, active_board);
+    copy_stats(&prevstats, stats);
+}
+
+void copy_board(Board* source, Board* dest){
+    int i,j;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            dest->tiles[i][j] = source->tiles[i][j];
+        }
+    }
+}
+
+void copy_stats(Stats *source, Stats *dest) {
+    dest->auto_save = source->auto_save;
+    dest->game_over = source->game_over;
+    dest->max_score = source->max_score;
+    dest->points    = source->points;
+    dest->score     = source->score;
 }
